@@ -4,16 +4,12 @@ const cors = require("cors");
 
 app.use(cors);
 
-// app.get("/", (req, res) => {
-//   res.send("<h1>hello</h1>");
-// });
-
 const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 
 io.on("connect", client => {
+  if (!io.currentChatters) io.currentChatters = [];
   client.broadcast.emit("newUser", "new user connected");
-  //   console.log(client);
   client.on("subscribeToTimer", interval => {
     setInterval(() => {
       client.emit("timer", new Date());
@@ -21,8 +17,25 @@ io.on("connect", client => {
   });
 
   client.on("newMessage", newMessage => {
-    console.log(newMessage);
+    console.log(client.currentChatter);
     io.emit("conversation", newMessage);
+  });
+
+  client.on("NewChatter", nickname => {
+    io.currentChatters.push(nickname);
+    client.currentChatter = nickname;
+    console.log(client.currentChatter, io.currentChatters);
+  });
+
+  client.on("disconnect", nickname => {
+    if (client.currentChatter && io.currentChatters) {
+      io.currentChatters = io.currentChatters.filter(chatter => {
+        console.log("chatter", chatter);
+        console.log("currentchatter", client.currentChatter);
+        return chatter !== client.currentChatter;
+      });
+    }
+    console.log(client.currentChatter, io.currentChatters);
   });
 });
 
