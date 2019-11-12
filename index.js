@@ -25,17 +25,17 @@ io.on("connect", client => {
     io.currentChatters.push(nickname);
     client.currentChatter = nickname;
     console.log(client.currentChatter, io.currentChatters);
+    io.emit("currentUsers", io.currentChatters);
   });
 
-  client.on("disconnect", nickname => {
+  client.on("disconnect", () => {
     if (client.currentChatter && io.currentChatters) {
       io.currentChatters = io.currentChatters.filter(chatter => {
-        console.log("chatter", chatter);
-        console.log("currentchatter", client.currentChatter);
         return chatter !== client.currentChatter;
       });
     }
     console.log(client.currentChatter, io.currentChatters);
+    io.emit("currentUsers", io.currentChatters);
   });
 });
 
