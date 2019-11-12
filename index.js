@@ -9,6 +9,7 @@ const io = require("socket.io")(http);
 
 io.on("connect", client => {
   if (!io.currentChatters) io.currentChatters = [];
+  io.emit("currentUsers", io.currentChatters);
   client.broadcast.emit("newUser", "new user connected");
   client.on("subscribeToTimer", interval => {
     setInterval(() => {
